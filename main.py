@@ -1,13 +1,71 @@
 import streamlit as st
 
-# 페이지 기본 설정 (타이틀, 아이콘, 레이아웃)
+# 페이지 기본 설정
 st.set_page_config(page_title="음악 장르별 노래 추천", page_icon="🎵", layout="centered")
 
-st.title("🎵 취향 저격 음악 추천 앱")
-st.write("좋아하는 음악 장르를 선택하시면 어울리는 노래들을 추천해 드려요!")
+# 심플하고 밝은 푸른 계열 커스텀 CSS 적용
+st.markdown("""
+    <style>
+    /* 전체 배경 및 메인 레이아웃 */
+    .stApp {
+        background-color: #F8FAFC;
+        color: #1E293B;
+    }
+    
+    /* 메인 타이틀 및 헤더 */
+    h1 {
+        color: #1E3A8A !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px;
+    }
+    h2, h3 {
+        color: #2563EB !important;
+    }
+    
+    /* 셀렉트박스 및 폼 요소 강조 스타일 */
+    .stSelectbox label, .stTextInput label {
+        color: #1E3A8A !important;
+        font-weight: 600 !important;
+    }
+    
+    /* 추천 노래 카드 디자인 */
+    .song-card {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-left: 5px solid #2563EB;
+        padding: 18px 22px;
+        border-radius: 10px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+    }
+    .song-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1E3A8A;
+    }
+    .song-artist {
+        font-size: 0.95rem;
+        color: #2563EB;
+        font-weight: 600;
+        margin-left: 6px;
+    }
+    .song-desc {
+        font-size: 0.88rem;
+        color: #64748B;
+        margin-top: 6px;
+    }
 
-# 1. 음악 장르별 추천 데이터 정의
-# 각 장르마다 추천할 곡의 정보(제목, 가수, 설명)를 담고 있습니다.
+    /* 구분선 및 버튼 스타일 */
+    hr {
+        border-top: 1px dashed #CBD5E1 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("🎵 취향 저격 음악 추천 앱")
+st.write("좋아하는 음악 장르를 선택하시면 푸른 감성에 어울리는 명곡들을 추천해 드려요!")
+
+# 1. 음악 장르별 추천 데이터
 RECOMMENDATIONS = {
     "K-POP / 댄스": [
         {"title": "Hype Boy", "artist": "NewJeans", "desc": "트렌디하고 청량한 사운드가 돋보이는 팝 댄스 곡"},
@@ -38,30 +96,31 @@ RECOMMENDATIONS = {
 
 st.markdown("---")
 
-# 2. 사용자 입력 (장르 선택 박스)
+# 2. 장르 선택
 selected_genre = st.selectbox(
     "🎧 어떤 장르의 음악을 듣고 싶으신가요?",
     options=list(RECOMMENDATIONS.keys())
 )
 
-# 3. 선택한 장르에 따른 노래 추천 결과 출력
+# 3. 추천 카드 출력
 if selected_genre:
     st.subheader(f"✨ '{selected_genre}' 추천 리스트")
     
     songs = RECOMMENDATIONS[selected_genre]
     
-    # 곡 목록을 깔끔한 카드로 출력
     for idx, song in enumerate(songs, 1):
-        with st.container():
-            st.markdown(f"### {idx}. **{song['title']}** - {song['artist']}")
-            st.caption(f"💡 {song['desc']}")
-            st.write("")  # 간격 조절
+        st.markdown(f"""
+            <div class="song-card">
+                <span class="song-title">{idx}. {song['title']}</span>
+                <span class="song-artist">- {song['artist']}</span>
+                <div class="song-desc">💡 {song['desc']}</div>
+            </div>
+        """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# 4. 사용자 취향 반영 기능 (추가곡 제안하기)
+# 4. 사용자 추천곡 제안 폼
 st.subheader("📝 나만의 추천곡 제안하기")
-st.write("목록에 없는 좋은 노래가 있다면 공유해 주세요!")
 
 with st.form("suggestion_form", clear_on_submit=True):
     user_genre = st.selectbox("장르", options=list(RECOMMENDATIONS.keys()), key="user_genre")
@@ -71,6 +130,6 @@ with st.form("suggestion_form", clear_on_submit=True):
 
     if submitted:
         if user_song and user_artist:
-            st.success(f"감사합니다! [{user_genre}] 장르에 '{user_artist} - {user_song}' 곡이 추천 목록에 제안되었습니다.")
+            st.success(f"감사합니다! [{user_genre}] 장르에 '{user_artist} - {user_song}' 곡이 제안되었습니다.")
         else:
             st.warning("노래 제목과 가수 이름을 모두 입력해 주세요.")
